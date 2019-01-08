@@ -36,6 +36,7 @@ SOURCES += \
     src/FileReader.cpp \
     kiss_fft130/tools/kiss_fftr.c \
     kiss_fft130/kiss_fft.c \
+    src/FFTAnalyzer.cpp
 
 HEADERS += \
         analyzerwindow.h \
