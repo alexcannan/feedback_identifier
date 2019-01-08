@@ -23,7 +23,6 @@ class FFTAnalyzer
         unsigned analysisPeriod;
         unsigned sampleRate;
 
-
 };
 
 #endif // FFTANALYZER_H
