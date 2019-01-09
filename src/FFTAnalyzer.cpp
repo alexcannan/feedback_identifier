@@ -24,9 +24,10 @@ std::vector<std::vector<int> > FFTAnalyzer::fileAnalyze(std::vector<int> data) {
     this->inputLength = data.size();
     this->buffCount = inputLength/vecSize;
     this->buffLeftover = inputLength%vecSize;
-    bool isLeftovers;
+    bool isLeftovers = false;
     vector<vector<int> > matrixoutput;
     kiss_fft_scalar inputfft[vecSize];
+    memset( inputfft, 0, vecSize*sizeof(kiss_fft_scalar) );
     vector<int> debuginput;
     for (int i = 0; i < vecSize; i++) {debuginput.push_back(0);}
     kiss_fft_cpx outputfft[vecSize];
@@ -42,43 +43,47 @@ std::vector<std::vector<int> > FFTAnalyzer::fileAnalyze(std::vector<int> data) {
                 //if final chunk & leftovers exist, fill with zeros
                 for (int k = 0; k < vecSize; k++) { // fill with zeros
                     inputfft[k+1] = 0;
-                    debuginput[k+1] = 0;
                 }
                 //push leftovers into vector from the front
                 for (int k = 0; k < buffLeftover; k++) { // fill beginning with leftovers
                     inputfft[k+1] = data[(i*vecSize)+1];
-                    debuginput[k+1] = data[(i*vecSize)+1];
                 }
 
             } else {
                 //fill input buffer normally
-                for (int k = 0; k < vecSize; k++) {
+                for (unsigned k = 0; k < vecSize; k++) {
                     unsigned long l = (i*vecSize)+1+k;
                     //cout << "Filling " << k+1 << "/" << vecSize << " with data[" << l << "] = " << data[l] << endl;
                     inputfft[k] = data[l];
-                    debuginput[k] = data[l];
                 }
 
             }
 
 //    for (int k = 0; k < vecSize; k++) {
-//        double intcos = cos((PI/2)*k);
-//        inputfft[k] = (int)(intcos);
-//        debuginput.push_back((int)(intcos));
+//       double intcos = 2000*cos((PI/2)*k);
+//       inputfft[k] = (int)(intcos);
+//       debuginput[k] = (int)(intcos);
 //    }
             //cout << "about to call fftr... " << endl;
 //TODO: Apply window to input fft here!
+//            for (int i = 0; i < vecSize; i++) {
+//                double multiplier = 0.5 * (1 - cos(2*PI*i/(vecSize-1))); //hann window
+//                double inputdouble = (double)(inputfft[i]);
+//                inputdouble *= multiplier;
+//                inputfft[i] = (int)(inputdouble);
+//            }
             for (int i = 0; i < vecSize; i++) {
-                double multiplier = 0.5 * (1 - cos(2*PI*i/(vecSize-1)));
-                inputfft[i] = multiplier * inputfft[i];
+                debuginput[i] = inputfft[i];
             }
             signaldata.push_back(debuginput);
 
             kiss_fftr(cfg, inputfft, outputfft);
+            kiss_fft_cleanup();
             vector<int> temp;
             for (int k = 0; k < vecSize; k++) {
                 //cout << "find magnitude of " << outputfft[k+1].r << " + i" << outputfft[k+1].i << endl;
-                double absmag = sqrt(pow(outputfft[k+1].r,2) + pow(outputfft[k+1].i,2));
+                //double absmag = sqrt(pow(outputfft[k+1].r,2) + pow(outputfft[k+1].i,2));
+                double absmag = outputfft[k+1].r;
                 double dbmag = 10*log(absmag/131148); // relative is max fft output value for int input
                 double noisefloor = 60;
                 if(dbmag < -noisefloor) {dbmag = -noisefloor;}

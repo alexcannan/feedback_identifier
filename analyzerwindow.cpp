@@ -72,7 +72,7 @@ ui->progressBar->setValue(20);
 //Take FFT Periodically
 
     unsigned guiAnalysisPeriod = ui->analysisPeriodSpinner->value();
-    unsigned fftSize = 1024;
+    unsigned fftSize;
     if (ui->radio512->isChecked()) {fftSize = 512;}
     if (ui->radio1024->isChecked()) {fftSize = 1024;}
     if (ui->radio2048->isChecked()) {fftSize = 2048;}
@@ -145,7 +145,7 @@ ui->progressBar->setValue(100);
 
 void AnalyzerWindow::on_pushBrowse_clicked()
 {
-    filename = QFileDialog::getOpenFileName(this,tr("Open file"),"..","Wav files (*.wav)");
+    filename = QFileDialog::getOpenFileName(this,tr("Open file"),"../feedback_identifier/wavfiles","Wav files (*.wav)");
     ui->filenameEdit->setText(filename);
 }
 
