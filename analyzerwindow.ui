@@ -152,13 +152,112 @@
    <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
-      <x>11</x>
-      <y>1</y>
+      <x>10</x>
+      <y>520</y>
+      <width>261</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout_5">
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <widget class="QPushButton" name="analysisperButton">
+         <property name="text">
+          <string>Analysis Period</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSpinBox" name="analysisPeriodSpinner">
+         <property name="minimum">
+          <number>1</number>
+         </property>
+         <property name="value">
+          <number>5</number>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <widget class="QProgressBar" name="progressBar">
+       <property name="value">
+        <number>0</number>
+       </property>
+       <property name="textVisible">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_3">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>460</y>
+      <width>261</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>FFT Size</string>
+    </property>
+    <widget class="QWidget" name="layoutWidget">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>241</width>
+       <height>19</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_3">
+      <item>
+       <widget class="QRadioButton" name="radio512">
+        <property name="text">
+         <string>512</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="radio1024">
+        <property name="text">
+         <string>1024</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="radio2048">
+        <property name="text">
+         <string>2048</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="radio4096">
+        <property name="text">
+         <string>4096</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="">
+    <property name="geometry">
+     <rect>
+      <x>13</x>
+      <y>3</y>
       <width>261</width>
       <height>301</height>
      </rect>
     </property>
-    <layout class="QVBoxLayout" name="verticalLayout_4">
+    <layout class="QVBoxLayout" name="verticalLayout_6">
      <item>
       <widget class="QLabel" name="label">
        <property name="font">
@@ -172,44 +271,74 @@
       </widget>
      </item>
      <item>
+      <widget class="QGroupBox" name="groupBox_4">
+       <property name="title">
+        <string>FFT Method</string>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_4">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_4">
+          <item>
+           <widget class="QRadioButton" name="radioKiss">
+            <property name="text">
+             <string>Kiss FFT</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="radioKyoto">
+            <property name="text">
+             <string>Kyoto FFT</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
       <widget class="QGroupBox" name="groupBox">
        <property name="title">
         <string>Input Type</string>
        </property>
-       <widget class="QRadioButton" name="fileRadio">
+       <widget class="QWidget" name="">
         <property name="geometry">
          <rect>
           <x>11</x>
           <y>24</y>
-          <width>231</width>
-          <height>17</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>From File</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-       <widget class="QRadioButton" name="liveRadio">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="geometry">
-         <rect>
-          <x>11</x>
-          <y>47</y>
           <width>241</width>
-          <height>17</height>
+          <height>19</height>
          </rect>
         </property>
-        <property name="text">
-         <string>Live - Not Working :(</string>
-        </property>
-        <property name="checkable">
-         <bool>false</bool>
-        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_5">
+         <item>
+          <widget class="QRadioButton" name="fileRadio">
+           <property name="text">
+            <string>From File</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="liveRadio">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>Live - Not Working :(</string>
+           </property>
+           <property name="checkable">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </widget>
       </widget>
      </item>
@@ -265,105 +394,6 @@
       </layout>
      </item>
     </layout>
-   </widget>
-   <widget class="QWidget" name="layoutWidget">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>520</y>
-      <width>261</width>
-      <height>61</height>
-     </rect>
-    </property>
-    <layout class="QVBoxLayout" name="verticalLayout_5">
-     <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_2">
-       <item>
-        <widget class="QPushButton" name="analysisperButton">
-         <property name="text">
-          <string>Analysis Period</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QSpinBox" name="analysisPeriodSpinner">
-         <property name="minimum">
-          <number>1</number>
-         </property>
-         <property name="value">
-          <number>5</number>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item>
-      <widget class="QProgressBar" name="progressBar">
-       <property name="value">
-        <number>0</number>
-       </property>
-       <property name="textVisible">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </widget>
-   <widget class="QGroupBox" name="groupBox_3">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>460</y>
-      <width>261</width>
-      <height>51</height>
-     </rect>
-    </property>
-    <property name="title">
-     <string>FFT Size</string>
-    </property>
-    <widget class="QWidget" name="">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>20</y>
-       <width>241</width>
-       <height>19</height>
-      </rect>
-     </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_3">
-      <item>
-       <widget class="QRadioButton" name="radio512">
-        <property name="text">
-         <string>512</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QRadioButton" name="radio1024">
-        <property name="text">
-         <string>1024</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QRadioButton" name="radio2048">
-        <property name="text">
-         <string>2048</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QRadioButton" name="radio4096">
-        <property name="text">
-         <string>4096</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">

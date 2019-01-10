@@ -11,7 +11,8 @@ class FFTAnalyzer
     public:
         FFTAnalyzer(unsigned vS, unsigned aP, unsigned sR);
         ~FFTAnalyzer();
-        vector<vector<int> > fileAnalyze(vector<int> data);
+        vector<vector<int> > fileAnalyzeKiss(vector<int> data);
+        vector<vector<int> > fileAnalyzeFFTW(vector<int> data);
 
         vector<vector<int> > signaldata;
 

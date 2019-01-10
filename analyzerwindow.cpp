@@ -7,8 +7,6 @@
 #include <algorithm>
 #include "src/FileReader.h"
 #include "src/FeedbackID.h"
-#include "kiss_fft130/kiss_fft.h"
-#include "kiss_fft130/tools/kiss_fftr.h"
 #include "src/FFTAnalyzer.h"
 #include <typeinfo>
 #include "analyzerwindow.h"
@@ -78,7 +76,9 @@ ui->progressBar->setValue(20);
     if (ui->radio2048->isChecked()) {fftSize = 2048;}
     if (ui->radio4096->isChecked()) {fftSize = 4096;}
     FFTAnalyzer FFTtest(fftSize, guiAnalysisPeriod, reader.getsamplerate());
-    vector<vector<int> > analysis = FFTtest.fileAnalyze(data);
+    vector<vector<int> > analysis;
+    if (ui->radioKiss->isChecked()) {analysis = FFTtest.fileAnalyzeKiss(data);}
+    if (ui->radioKyoto->isChecked()) {analysis = FFTtest.fileAnalyzeFFTW(data);}
 
 ui->progressBar->setValue(40);
 
@@ -116,21 +116,21 @@ try {
     int fbmag = 0;
     // encode matrix data into file
     std::remove("rgbData");
-    std::ofstream filename;
-    filename.open("rgbData");
+    std::ofstream rgbData;
+    rgbData.open("rgbData");
     for(unsigned long iIndex = 0; iIndex < len; iIndex++)
     {
         int x = iIndex%iW;
-        int y = iIndex/iW+1;
+        int y = iIndex/iW;
         mag = analysis[x][y]/129;
         fbmag = FBProbs[x][y]/129;
-        filename << x << " " << y << " " << fbmag << " " << mag << " " << mag << std::endl;
+        rgbData << x << " " << y << " " << fbmag << " " << mag << " " << mag << std::endl;
 
         QCoreApplication::processEvents();
     }
-    filename.close();
+    rgbData.close();
     Gnuplot g9;
-    g9.set_xrange(0,iW).set_yrange(0,iH).set_cbrange(0,255);
+    g9.set_xrange(0,iW-1).set_yrange(0,iH).set_cbrange(0,255);
     //g9.cmd("set palette color");
     g9.plot_rgbimage("rgbData",iW,iH,"Spectrum");
 }

@@ -23,7 +23,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 win32 {
-    INCLUDEPATH += C:/boost_1_69_0/PREFIX/include/boost-1_69
+    INCLUDEPATH += C:/boost_1_69_0/PREFIX/include/boost-1_69 \
     LIBS += "-LC:\boost_1_69_0\PREFIX\lib" \
 }
 
@@ -36,7 +36,8 @@ SOURCES += \
     src/FileReader.cpp \
     kiss_fft130/tools/kiss_fftr.c \
     kiss_fft130/kiss_fft.c \
-    src/FFTAnalyzer.cpp
+    src/FFTAnalyzer.cpp \
+    lib/fft4g.c
 
 HEADERS += \
         analyzerwindow.h \
@@ -50,8 +51,9 @@ HEADERS += \
     src/FeedbackID.h \
     src/FFTAnalyzer.h \
     src/FileReader.h \
-    lib/gnuplot-iostream.h \
-    lib/gnuplot_i.hpp
+    lib/gnuplot_i.hpp \
+    lib/fftw3.h \
+    lib/fft4g.h
 
 FORMS += \
         analyzerwindow.ui
