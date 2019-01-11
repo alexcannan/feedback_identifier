@@ -37,7 +37,8 @@ SOURCES += \
     kiss_fft130/tools/kiss_fftr.c \
     kiss_fft130/kiss_fft.c \
     src/FFTAnalyzer.cpp \
-    lib/fft4g.c
+    lib/fft4g.c \
+    src/FBplotter.cpp
 
 HEADERS += \
         analyzerwindow.h \
@@ -53,7 +54,8 @@ HEADERS += \
     src/FileReader.h \
     lib/gnuplot_i.hpp \
     lib/fftw3.h \
-    lib/fft4g.h
+    lib/fft4g.h \
+    src/FBplotter.h
 
 FORMS += \
         analyzerwindow.ui
