@@ -167,14 +167,19 @@ void FeedbackID::SNRCheck(int i)
 {
   int spacing = MaxProb_ / (SNLThresholdH_ - SNLThresholdL_);
   for (unsigned j = 0; j < data[i].size(); j++){
-    if(data[i][j] >= SNLThresholdL_){
-      if(data[i][j] >= SNLThresholdH_)
-	SNLProbs[i][j] = MaxProb_;
-      else
-	SNLProbs[i][j] = (data[i][j] - SNLThresholdL_) * spacing;
-    }
-    else
+      if (data[i][j] < SNLThresholdL_) {
+          SNLProbs[i][j] = 0;
+      }
+
+    if(data[i][j] >= SNLThresholdL_) {
+      if(data[i][j] >= SNLThresholdH_) {
+        SNLProbs[i][j] = MaxProb_;
+      } else {
+        SNLProbs[i][j] = (data[i][j] - SNLThresholdL_) * spacing;
+      }
+    } else {
       SNLProbs[i][j] = 0;
+    }
   }
 }
 
@@ -184,10 +189,11 @@ void FeedbackID::SwellCheck(int i)
   for (unsigned j = 0; j < data[i].size(); j++){
     if(i != 0){
       if(data[i][j] - data[i-1][j] >= SwellThresholdL_){
-	if(data[i][j] - data[i-1][j] >= SwellThresholdH_)
-	  SwellProbs[i][j] = MaxProb_;
-	else
-	  SwellProbs[i][j] = ((data[i][j] - data[i-1][j]) - SwellThresholdL_) * spacing; 
+          if(data[i][j] - data[i-1][j] >= SwellThresholdH_) {
+            SwellProbs[i][j] = MaxProb_;
+          } else {
+            SwellProbs[i][j] = ((data[i][j] - data[i-1][j]) - SwellThresholdL_) * spacing;
+          }
       }
       else
 	SwellProbs[i][j] = 0;

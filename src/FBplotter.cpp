@@ -18,34 +18,38 @@ FBPlotter::~FBPlotter() {
     // dtor
 }
 
-void FBPlotter::RGBEncode(string filename, vector<vector<int> > p, vector<vector<int> > f) {
-    // TODO
+void FBPlotter::RGBEncode(const char* filename, vector<vector<int> > p, vector<vector<int> > f) {
+
+    const unsigned long len = iWfft*iHfft;
+    int fft = 0;
+    int prob = 0;
+    // encode matrix data into file
+    std::remove(filename);
+    std::ofstream rgbData;
+    rgbData.open(filename);
+    for(unsigned long iIndex = 0; iIndex < len; iIndex++)
+    {
+        int x = iIndex%iWfft;
+        int y = iIndex/iWfft;
+        fft = f[x][y]/129;
+        if (x < iWprob) {
+            prob = p[x][y]/129;
+        } else {
+            prob = 0;
+        }
+        rgbData << x << " " << y << " " << prob << " " << fft << " " << fft << std::endl;
+    }
+    rgbData.close();
+
 }
 
-void FBPlotter::Plot(string filename) {
+void FBPlotter::Plot(string filename, bool isKyoto) {
     try {
-        const unsigned long len = iW*iH;
-        int mag = 0;
-        int fbmag = 0;
-        // encode matrix data into file
-        std::remove("rgbData");
-        std::ofstream rgbData;
-        rgbData.open("rgbData");
-        for(unsigned long iIndex = 0; iIndex < len; iIndex++)
-        {
-            int x = iIndex%iW;
-            int y = iIndex/iW;
-            mag = analysis[x][y]/129;
-            fbmag = FBProbs[x][y]/129;
-            rgbData << x << " " << y << " " << fbmag << " " << mag << " " << mag << std::endl;
-
-            QCoreApplication::processEvents();
-        }
-        rgbData.close();
         Gnuplot g9;
-        g9.set_xrange(0,iW-1).set_yrange(0,iH).set_cbrange(0,255);
+        g9.set_xrange(0,iWfft-1).set_cbrange(0,255);
+        if (isKyoto) {g9.set_yrange(0,iHfft/4);} else {g9.set_yrange(0,iHfft/2);}
         //g9.cmd("set palette color");
-        g9.plot_rgbimage(filename,iW,iH,"Spectrum");
+        g9.plot_rgbimage(filename,iWfft,iHfft,"Spectrum");
     }
     catch (GnuplotException ge) {
         std::cout << ge.what() << endl;

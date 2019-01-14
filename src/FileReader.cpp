@@ -173,6 +173,15 @@ vector<int> FileReader::read(string fileName)
         sampleInt = (((u9)sample[1] << 8) | (u9)sample[0]);
         data.push_back(sampleInt);
     }
+
+    // output vector to wavOutput.csv file for testing
+    remove("wavOutput.csv");
+    ofstream fileread;
+    fileread.open("wavOutput.csv");
+    for (unsigned i = 0; i < data.size(); i++) {
+        fileread << data[i] << endl;
+    } fileread.close();
+
     return data;
 }
 

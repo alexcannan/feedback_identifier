@@ -3,6 +3,7 @@
 #include <iostream>
 #include <vector>
 #include <iomanip>
+#include <fstream>
 #include <math.h>
 #include <kiss_fft130/kiss_fft.h>
 #include <kiss_fft130/_kiss_fft_guts.h>
@@ -22,7 +23,7 @@ FFTAnalyzer::~FFTAnalyzer() {
     //dtor
 }
 
-std::vector<std::vector<int> > FFTAnalyzer::fileAnalyzeKiss(std::vector<int> data) {
+std::vector<std::vector<int> > FFTAnalyzer::fileAnalyzeKiss(const std::vector<int> &data) {
     //std::cout << "Inside analyzer function." << std::endl;
 //define some vars
     this->inputLength = data.size();
@@ -86,8 +87,7 @@ std::vector<std::vector<int> > FFTAnalyzer::fileAnalyzeKiss(std::vector<int> dat
             vector<int> temp;
             for (int k = 0; k < vecSize; k++) {
                 //cout << "find magnitude of " << outputfft[k+1].r << " + i" << outputfft[k+1].i << endl;
-                //double absmag = sqrt(pow(outputfft[k+1].r,2) + pow(outputfft[k+1].i,2));
-                double absmag = outputfft[k+1].r;
+                double absmag = sqrt(pow(outputfft[k+1].r,2) + pow(outputfft[k+1].i,2));
                 double dbmag = 10*log(absmag/131148); // relative is max fft output value for int input
                 double noisefloor = 60;
                 if(dbmag < -noisefloor) {dbmag = -noisefloor;}
@@ -107,7 +107,7 @@ std::cout << "Returning output matrix of dimensions " << matrixoutput.size() << 
     return matrixoutput;
 }
 
-std::vector<std::vector<int> > FFTAnalyzer::fileAnalyzeFFTW(std::vector<int> data) {
+std::vector<std::vector<int> > FFTAnalyzer::fileAnalyzeKyoto(const std::vector<int> &data) {
     //std::cout << "Inside analyzer function." << std::endl;
 //define some vars
     this->inputLength = data.size();
@@ -163,15 +163,25 @@ std::vector<std::vector<int> > FFTAnalyzer::fileAnalyzeFFTW(std::vector<int> dat
 //    }
             //cout << "about to call fftr... " << endl;
 //TODO: Apply window to input fft here!
-            for (int i = 0; i < vecSize; i++) {
-                double multiplier = 0.5 * (1 - cos(2*PI*i/(vecSize-1))); //hann window
-                double inputdouble = (double)(a[2*i]);
+            for (int k = 0; k < vecSize; k++) {
+                double multiplier = 0.5 * (1 - cos(2*PI*k/(vecSize-1))); //hann window
+                double inputdouble = (double)(a[2*k]);
                 inputdouble *= multiplier;
-                a[2*i] = inputdouble;
+                a[2*k] = inputdouble;
             }
-            for (int i = 0; i < vecSize; i++) {
-                debuginput[i] = a[2*i];
+            for (int k = 0; k < vecSize; k++) {
+                debuginput[k] = a[2*k];
             }
+
+            // output kyoto input to file for debug
+            std::remove("kyotoInput");
+            std::ofstream kyotodebug;
+            kyotodebug.open("kyotoInput");
+            int arrLength = sizeof(a)/sizeof(*a);
+            for (int k = 0; k < arrLength; k++) {
+                kyotodebug << a[k] << endl;
+            } kyotodebug.close();
+
             signaldata.push_back(debuginput);
 
             // call fftw function
@@ -180,13 +190,13 @@ std::vector<std::vector<int> > FFTAnalyzer::fileAnalyzeFFTW(std::vector<int> dat
 
             vector<int> temp;
             for (int k = 0; k < vecSize; k++) {
-                cout << "find magnitude of " << a[2*k] << " + i" << a[2*k+1] << endl;
+                //cout << "find magnitude of " << a[2*k] << " + i" << a[2*k+1] << endl;
                 double absmag = sqrt(pow(a[2*k],2)+pow(a[2*k+1],2));
-//                double dbmag = 10*log(absmag/131148); // relative is max fft output value for int input
-//                double noisefloor = 60;
-//                if(dbmag < -noisefloor) {dbmag = -noisefloor;}
-//                if(dbmag > 0) {dbmag = 0;}
-//                dbmag = (dbmag+noisefloor*1.00001)*(32000/noisefloor); // translate [-nf,0] to [0,nf] and then [0,32787]
+                double dbmag = 10*log(absmag/131148); // relative is max fft output value for int input
+                double noisefloor = 40;
+                if(dbmag < -noisefloor) {dbmag = -noisefloor;}
+                if(dbmag > 0) {dbmag = 0;}
+                dbmag = (dbmag+noisefloor*1.00001)*(32000/noisefloor); // translate [-nf,0] to [0,nf] and then [0,32787]
                 temp.push_back((int)(absmag));
             }
 

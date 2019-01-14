@@ -11,8 +11,8 @@ class FBPlotter
     public:
         FBPlotter(vector<vector<int> > p, vector<vector<int> > f);
         ~FBPlotter();
-        void Matrix2File(string filename, vector<vector<int> > p, vector<vector<int> > f);
-        void Plot();
+        void RGBEncode(const char* filename, vector<vector<int> > p, vector<vector<int> > f);
+        void Plot(string filename, bool isKyoto);
 
     private:
         unsigned int iWprob;

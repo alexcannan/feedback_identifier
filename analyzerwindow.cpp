@@ -1,5 +1,3 @@
-#define FIXED_POINT 16
-
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -8,12 +6,14 @@
 #include "src/FileReader.h"
 #include "src/FeedbackID.h"
 #include "src/FFTAnalyzer.h"
+#include "src/FBplotter.h"
+#include "src/AudioFile.h"
 #include <typeinfo>
 #include "analyzerwindow.h"
 #include "ui_analyzerwindow.h"
 #include <QFileDialog>
 #include <QMessageBox>
-#include "lib/gnuplot_i.hpp"
+
 
 
 AnalyzerWindow::AnalyzerWindow(QWidget *parent) : QMainWindow(parent),
@@ -41,31 +41,51 @@ void AnalyzerWindow::on_AnalyzeButton_clicked()
 
 ui->progressBar->setValue(20);
 
-    vector<int> data = reader.read(utf8_text);
+// Take data from wav file and input into samples... not working? Getting values close to zero randomly throughout data vector.
+//    vector<int> data = reader.read(utf8_text);
 
-//Check for errors in file reading
-    if (data.size() < 10 && data.size() > 0) { // returned error vector if size less than 10
-        QString errors = "";
-        for (int i = 0; i < data.size(); i++) {
-            if (data[i] == 1) {errors += "ec1: File not found\n";}
-            if (data[i] == 2) {errors += "ec2: File too small to be .wav\n";}
-            if (data[i] == 3) {errors += "ec3: Header mismatch 1. May not be .wav file\n";}
-            if (data[i] == 4) {errors += "ec4: Header mismatch 2. May not be .wav file\n";}
-            if (data[i] == 5) {errors += "ec5: File must be uncompressed\n";}
-            if (data[i] == 6) {errors += "ec6: File must be mono\n";}
-            if (data[i] == 7) {errors += "ec7: Header mismatch 3. May not be .wav file\n";}
-        }
-        errors += "\nAborting process.";
-        QMessageBox Error;
-        Error.setText(errors);
-        Error.setIcon(QMessageBox::Warning);
-        Error.setWindowTitle("Error");
-        Error.exec();
-        ui->progressBar->setValue(0);
+////Check for errors in file reading
+//    if (data.size() < 10 && data.size() > 0) { // returned error vector if size less than 10
+//        QString errors = "";
+//        for (int i = 0; i < data.size(); i++) {
+//            if (data[i] == 1) {errors += "ec1: File not found\n";}
+//            if (data[i] == 2) {errors += "ec2: File too small to be .wav\n";}
+//            if (data[i] == 3) {errors += "ec3: Header mismatch 1. May not be .wav file\n";}
+//            if (data[i] == 4) {errors += "ec4: Header mismatch 2. May not be .wav file\n";}
+//            if (data[i] == 5) {errors += "ec5: File must be uncompressed\n";}
+//            if (data[i] == 6) {errors += "ec6: File must be mono\n";}
+//            if (data[i] == 7) {errors += "ec7: Header mismatch 3. May not be .wav file\n";}
+//        }
+//        errors += "\nAborting process.";
+//        QMessageBox Error;
+//        Error.setText(errors);
+//        Error.setIcon(QMessageBox::Warning);
+//        Error.setWindowTitle("Error");
+//        Error.exec();
+//        ui->progressBar->setValue(0);
 
-        return;
+//        return;
+//    }
+//    if (data.size() == 0) {std::cout << "Returned empty vector. What's up with that?" << std::endl; return;}
+
+// Trying AudioFile library, found on github. See AudioFile.h for info
+
+    vector<int> data;
+    AudioFile<double> af;
+    af.load(utf8_text);
+    int numSamples = af.getNumSamplesPerChannel();
+    for (int i = 0; i < numSamples; i++) {
+        double temp = af.samples[0][i];
+        data.push_back((int)(temp*32767));
     }
-    if (data.size() == 0) {std::cout << "Returned empty vector. What's up with that?" << std::endl; return;}
+
+    // output to file for debug
+    remove("wavOutput.csv");
+    ofstream fileread;
+    fileread.open("wavOutput.csv");
+    for (unsigned i = 0; i < data.size(); i++) {
+        fileread << data[i] <<  ", " << af.samples[0][i] << endl;
+    } fileread.close();
 
 //Take FFT Periodically
 
@@ -75,14 +95,16 @@ ui->progressBar->setValue(20);
     if (ui->radio1024->isChecked()) {fftSize = 1024;}
     if (ui->radio2048->isChecked()) {fftSize = 2048;}
     if (ui->radio4096->isChecked()) {fftSize = 4096;}
-    FFTAnalyzer FFTtest(fftSize, guiAnalysisPeriod, reader.getsamplerate());
-    vector<vector<int> > analysis;
-    if (ui->radioKiss->isChecked()) {analysis = FFTtest.fileAnalyzeKiss(data);}
-    if (ui->radioKyoto->isChecked()) {analysis = FFTtest.fileAnalyzeFFTW(data);}
+    if (ui->radioKyoto->isChecked()) {fftSize = fftSize*2;}
+    FFTAnalyzer FFTtest(fftSize, guiAnalysisPeriod, af.getSampleRate());
+    vector<vector<int> > fftOut;
+    bool isKyoto;
+    if (ui->radioKiss->isChecked()) {fftOut = FFTtest.fileAnalyzeKiss(data); isKyoto = false;}
+    if (ui->radioKyoto->isChecked()) {fftOut = FFTtest.fileAnalyzeKyoto(data); isKyoto = true;}
 
 ui->progressBar->setValue(40);
 
-    FeedbackID IDtest(analysis);
+    FeedbackID IDtest(fftOut);
 
     IDtest.setSNLWeight(ui->sliderSNR->value());
     IDtest.setSwellWeight(ui->sliderSwell->value());
@@ -94,49 +116,24 @@ ui->progressBar->setValue(40);
 
 ui->progressBar->setValue(70);
 
-//output analysis matricies to analyze
+//output analysis matricies to debug
 std::ofstream m2plot;
 std::ofstream m2analyze;
 m2plot.open("fftmatrix.csv");
 m2analyze.open("signaldata.csv");
-for (int i = 0; i < analysis.size(); i++) {
-    for (int j = 0; j < analysis[1].size()-1; j++){
-        m2plot << analysis[i][j] << ", ";
+for (int i = 0; i < fftOut.size(); i++) {
+    for (int j = 0; j < fftOut[1].size()-1; j++){
+        m2plot << fftOut[i][j] << ", ";
         m2analyze << FFTtest.signaldata[i][j] << ", ";
     }
-    m2plot << analysis[i][1023] << std::endl;
+    m2plot << fftOut[i][1023] << std::endl;
     m2analyze << FFTtest.signaldata[i][1023] << std::endl;
-}
+} m2plot.close(); m2analyze.close();
 
-try {
-    unsigned int iW = IDtest.iWidth;
-    unsigned int iH = IDtest.iHeight;
-    const unsigned long len = iW*iH;
-    int mag = 0;
-    int fbmag = 0;
-    // encode matrix data into file
-    std::remove("rgbData");
-    std::ofstream rgbData;
-    rgbData.open("rgbData");
-    for(unsigned long iIndex = 0; iIndex < len; iIndex++)
-    {
-        int x = iIndex%iW;
-        int y = iIndex/iW;
-        mag = analysis[x][y]/129;
-        fbmag = FBProbs[x][y]/129;
-        rgbData << x << " " << y << " " << fbmag << " " << mag << " " << mag << std::endl;
+    FBPlotter fbp(FBProbs, fftOut);
+    fbp.RGBEncode("rgbdata",FBProbs,fftOut);
+    fbp.Plot("rgbdata", isKyoto);
 
-        QCoreApplication::processEvents();
-    }
-    rgbData.close();
-    Gnuplot g9;
-    g9.set_xrange(0,iW-1).set_yrange(0,iH).set_cbrange(0,255);
-    //g9.cmd("set palette color");
-    g9.plot_rgbimage("rgbData",iW,iH,"Spectrum");
-}
-catch (GnuplotException ge) {
-    std::cout << ge.what() << endl;
-}
 
 
 
